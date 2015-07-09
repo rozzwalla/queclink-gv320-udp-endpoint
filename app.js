@@ -4,7 +4,7 @@
  * Initialize the endpoint.
  */
 var endpoint = require('./endpoint')(),
-	parser = require('./parser/queclink320-parser');
+	parser = require('./parser/queclink320-parser');;
 
 /*
  * Listen for the ready event.
@@ -15,22 +15,11 @@ endpoint.on('ready', function (options) {
 		StringDecoder = require('string_decoder').StringDecoder,
 		decoder       = new StringDecoder('utf8'),
 		serverAddress = host + '' + options.port,
-		server        = require('./server')(options.port, host, {
-			_keepaliveTimeout: 3600000
-		});
+		server = require('./server')(options.port, host);
 
 	server.on('ready', function () {
-		console.log('TCP Server now listening on '.concat(host).concat(':').concat(options.port));
+		console.log('UDP Server now listening on '.concat(host).concat(':').concat(options.port));
 		endpoint.sendListeningState();
-	});
-
-	server.on('client_on', function (clientAddress) {
-		server.send(clientAddress, 'CONNACK');
-		endpoint.sendConnection(clientAddress);
-	});
-
-	server.on('client_off', function (clientAddress) {
-		endpoint.sendDisconnect(clientAddress);
 	});
 
 	server.on('data', function (clientAddress, rawData) {
